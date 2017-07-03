@@ -17,7 +17,7 @@ public class ServerNetwork {
 	}
 	
 	public void open(){
-		
+		//git test
 		try{
 			ServerSocket server = new ServerSocket(PORT);
 			System.out.println("Starting Server...");
