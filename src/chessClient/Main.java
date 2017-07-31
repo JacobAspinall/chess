@@ -6,7 +6,8 @@ public class Main {
 
 	public static void main(String[] args) {
 		ClientNetwork client = new ClientNetwork();
-		client.connect();
+		
+		
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {

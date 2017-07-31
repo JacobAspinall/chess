@@ -17,7 +17,7 @@ public class ServerNetwork {
 	}
 	
 	public void open(){
-		//git test2
+		
 		try{
 			ServerSocket server = new ServerSocket(PORT);
 			System.out.println("Starting Server...");
@@ -34,10 +34,16 @@ public class ServerNetwork {
 							Runnable messageListener = new Runnable(){
 								public void run(){
 									while(true){
-										receive(newConnection);
+										int status = receive(newConnection);
+										if(status == -1){
+											connections.remove(newConnection);
+											return;
+										}
 									}
+									
 								}
 							};
+							
 							
 							new Thread(messageListener).start();
 							
@@ -58,23 +64,41 @@ public class ServerNetwork {
 		
 	}
 	
-	public void receive(Socket connection){
+	public int receive(Socket connection){
+		Scanner inputScanner; 
 		try{
-			Scanner inputScanner = new Scanner(connection.getInputStream());
+			inputScanner = new Scanner(connection.getInputStream());
 			
-			while(true){
-				if(inputScanner.hasNext()){
+			//while(true){
+				//if(inputScanner.hasNext()){
+					
 					String input = inputScanner.nextLine();
-					if(!input.equals("")){
-						System.out.println(input);
-						broadcast(input);
+					char id = input.charAt(0);
+					input = input.substring(1);
+					
+					switch(id){
+					
+					case 'c' :
+						broadcastChat(input);
+						return 1;
+					case 'm' :
+						broadcastMove(input);
+						return 1;
 					}
-				}
-			}		
+				//}
+			//}		
+				
 		}
-		catch(IOException e){
-			System.out.println(e);
+		catch(Exception e){
+			try {
+				connection.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			return -1;
 		}
+		
+		return 1;
 	}
 	
 	public void send(Socket clientConnection, String output){
@@ -93,6 +117,16 @@ public class ServerNetwork {
 		for(Socket s : connections){
 			send(s, output);
 		}
+	}
+	
+	public void broadcastChat(String input){
+		String output = "c" + input;
+		broadcast(output);
+	}
+	
+	public void broadcastMove(String input){
+		String output = "m" + input;
+		broadcast(output);
 	}
 
 }
